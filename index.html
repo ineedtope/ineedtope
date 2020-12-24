@@ -3,15 +3,102 @@
   <head>
     <meta charset='utf-8' />
     <title>ineedto.pe</title>
-    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <script src="https://api.mapbox.com/mapbox-gl-js/v1.13.0/mapbox-gl.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v1.13.0/mapbox-gl.css" rel="stylesheet" />
     <style>
-      body {
-        margin: 0;
-        padding: 0;
-        background: #fbb03b;
-      }
+      body { margin: 0; padding: 0; }
+      #map { position: absolute; top: 0; bottom: 0; width: 100%; }
     </style>
   </head>
   <body>
+    <div id="map"></div>
+    <script>
+      mapboxgl.accessToken = "pk.eyJ1IjoiZGFuaWVsamgiLCJhIjoiY2s3NmF0NzRxMHB3MjNrcGFkaHA0NXZtayJ9.PcZhR9D5pRImSmk_je2tJA";
+
+      var map = new mapboxgl.Map({
+        container: "map",
+        style: "mapbox://styles/danieljh/ck750muv10hho1ir3379dtbjo",
+        center: [13.4, 52.51],
+        hash: true,
+        zoom: 12,
+        minZoom: 12,
+        maxZoom: 19,
+        attributionControl: false,
+      });
+
+      map.addControl(new mapboxgl.AttributionControl({
+        customAttribution: "<a href=\"https://github.com/ineedtope/ineedtope\">github.com/ineedtope</a>"
+      }));
+
+      map.on("load", function () {
+        map.loadImage("/twemoji-13.0.1-toilet_1f6bd.png", function(error, image) {
+          if (error) throw error;
+
+          map.addImage("toilets", image, { sdf: true });
+
+          map.addSource("toilets", {
+            type: "geojson",
+            data: "/toilets.geojson",
+          });
+
+          map.addLayer({
+            id: "toilets",
+            source: "toilets",
+            type: "symbol",
+            minzoom: 14,
+            layout: {
+              "icon-image": "toilets",
+              "icon-anchor": "bottom",
+              "icon-size": 0.2,
+              "icon-allow-overlap": true,
+              "text-field": "{name}",
+              "text-optional": true,
+              "text-anchor": "top",
+              "text-size": ["interpolate", ["linear"], ["zoom"], 10, 10, 19, 16],
+            },
+            paint: {
+              "icon-color": "#fbb03b",
+              "text-color": "#220022",
+            },
+          });
+
+          map.on("mouseenter", "toilets", function () {
+            map.getCanvas().style.cursor = "pointer";
+          });
+
+          map.on("mouseleave", "toilets", function () {
+            map.getCanvas().style.cursor = "";
+          });
+
+          map.on("click", "toilets", function(e) {
+            var feature = e.features[0];
+            var props = feature.properties;
+
+            if (props.length < 1)
+              return;
+
+            var coordinates = feature.geometry.coordinates;
+
+            var description = "<table>";
+
+            description += "<tr><th>Node</th><td><a rel=\"noreferrer noopener\" href=\"https://www.openstreetmap.org/node/" + props["@id"] + "\">" + props["@id"] + "</a></td></tr>";
+            description += "<tr><th>Date</th><td>" + new Date(props["@timestamp"] * 1000).toLocaleString() + "</td></tr>";
+            description += "<tr><th><hr></th><td><hr></td></tr>";
+
+            delete props["@id"];
+            delete props["@timestamp"];
+
+            Object.entries(props).sort(function(a, b) { return b[0].localeCompare(a[0]); }).forEach(function(kv) {
+              description += "<tr><th>" + kv[0] + "</th><td>" + kv[1] + "</td></tr>";
+            });
+
+            description += "</table>";
+
+            new mapboxgl.Popup().setLngLat(coordinates).setHTML(description).addTo(map);
+          });
+        });
+      });
+    </script>
   </body>
 </html>
