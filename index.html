@@ -1,14 +1,15 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <meta charset='utf-8' />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
     <title>ineedto.pe</title>
-    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <meta name="Description" content="ineedto.pe 🚽">
     <script src="https://api.mapbox.com/mapbox-gl-js/v1.13.0/mapbox-gl.js"></script>
     <link href="https://api.mapbox.com/mapbox-gl-js/v1.13.0/mapbox-gl.css" rel="stylesheet" />
     <style>
       body { margin: 0; padding: 0; }
-      #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+      #map { position: absolute; top: 0px; bottom: 0; width: 100%; }
     </style>
   </head>
   <body>
@@ -39,7 +40,7 @@
 
           map.addSource("toilets", {
             type: "geojson",
-            data: "/toilets.geojson",
+            data: "/toilets-transformed.geojson",
           });
 
           map.addLayer({
@@ -80,22 +81,31 @@
 
             var coordinates = feature.geometry.coordinates;
 
+            var osmId = props["@id"];
+            var updateDate = new Date(props["@timestamp"] * 1000);
+            var isoDateFmt = updateDate.toISOString().slice(0, "YYYY-MM-DD".length);
+
             var description = "<table>";
 
-            description += "<tr><th>Node</th><td><a rel=\"noreferrer noopener\" href=\"https://www.openstreetmap.org/node/" + props["@id"] + "\">" + props["@id"] + "</a></td></tr>";
-            description += "<tr><th>Date</th><td>" + new Date(props["@timestamp"] * 1000).toLocaleString() + "</td></tr>";
+            description += "<tr><th>🌍 OpenStreetMap</th><td><a href=\"https://www.openstreetmap.org/node/" + props["@id"] + "\">" + osmId + "</a></td></tr>";
+            description += "<tr><th>♻️ Last Updated</th><td>" + isoDateFmt + "</td></tr>";
             description += "<tr><th><hr></th><td><hr></td></tr>";
 
             delete props["@id"];
             delete props["@timestamp"];
 
-            Object.entries(props).sort(function(a, b) { return b[0].localeCompare(a[0]); }).forEach(function(kv) {
-              description += "<tr><th>" + kv[0] + "</th><td>" + kv[1] + "</td></tr>";
-            });
+            if ("access" in props)
+              description += "<tr><th>✋</th><td>" + props["access"].toLocaleUpperCase() + "</td></tr>";
+
+            if ("fee" in props)
+              description += "<tr><th>💰</th><td>" + props["fee"].toLocaleUpperCase() + "</td></tr>";
+
+            if ("wheelchair" in props)
+              description += "<tr><th>🦽</th><td>" + props["wheelchair"].toLocaleUpperCase() + "</td></tr>";
 
             description += "</table>";
 
-            new mapboxgl.Popup().setLngLat(coordinates).setHTML(description).addTo(map);
+            new mapboxgl.Popup({ closeButton: false }).setLngLat(coordinates).setHTML(description).addTo(map);
           });
         });
       });
