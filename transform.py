@@ -1,8 +1,15 @@
 #!/usr/bin/env python3
 
 import json
+import html
 import pathlib
 import argparse
+
+
+def sanitize(v):
+    if isinstance(v, str):
+        return html.escape(v)
+    return v
 
 
 def transform(feature):
@@ -13,7 +20,7 @@ def transform(feature):
             "access": ["yes", "customers"],
             "wheelchair": ["yes", "no", "limited"]}
 
-    props = {k: v for k, v in feature["properties"].items()
+    props = {k: sanitize(v) for k, v in feature["properties"].items()
                 if k in tags and (tags[k] == "*" or v in tags[k])}
 
     feature["properties"] = props
