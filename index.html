@@ -85,7 +85,7 @@
             var updateDate = new Date(props["@timestamp"] * 1000);
             var isoDateFmt = updateDate.toISOString().slice(0, "YYYY-MM-DD".length);
 
-            var description = "<table>";
+            var description = "<table style='text-align: left'>";
 
             description += "<tr><th>🌍 OpenStreetMap</th><td><a href=\"https://www.openstreetmap.org/node/" + props["@id"] + "\">" + osmId + "</a></td></tr>";
             description += "<tr><th>♻️ Last Updated</th><td>" + isoDateFmt + "</td></tr>";
