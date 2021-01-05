@@ -95,13 +95,13 @@
             delete props["@timestamp"];
 
             if ("access" in props)
-              description += "<tr><th>✋</th><td>" + props["access"].toLocaleUpperCase() + "</td></tr>";
+              description += "<tr><th>🚫 Access</th><td>" + props["access"].toLocaleUpperCase() + "</td></tr>";
 
             if ("fee" in props)
-              description += "<tr><th>💰</th><td>" + props["fee"].toLocaleUpperCase() + "</td></tr>";
+              description += "<tr><th>💰 Fee</th><td>" + props["fee"].toLocaleUpperCase() + "</td></tr>";
 
             if ("wheelchair" in props)
-              description += "<tr><th>🦽</th><td>" + props["wheelchair"].toLocaleUpperCase() + "</td></tr>";
+              description += "<tr><th>♿ Wheelchair</th><td>" + props["wheelchair"].toLocaleUpperCase() + "</td></tr>";
 
             description += "</table>";
 
